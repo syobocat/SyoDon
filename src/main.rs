@@ -13,8 +13,6 @@ pub static PRIVKEY: OnceLock<RsaPrivateKey> = OnceLock::new();
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    env_logger::init_from_env(env_logger::Env::default().default_filter_or("syodon=info"));
-
     let args = cli::Arg::parse();
 
     let Ok(config) = config::load(args.config) else {

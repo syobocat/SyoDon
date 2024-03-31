@@ -14,7 +14,7 @@ pub fn genkey(path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
         .inspect_err(|e| eprintln!("Failed to generate a key: {e}"))?;
     priv_key
         .write_pkcs8_pem_file(path, rsa::pkcs8::LineEnding::LF)
-        .inspect_err(|e| eprintln!("Failed to write key into a file: {e}"))?;
+        .inspect_err(|e| eprintln!("Failed to write a key into a file: {e}"))?;
 
     Ok(())
 }
