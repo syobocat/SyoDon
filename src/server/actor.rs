@@ -1,11 +1,10 @@
-use crate::config;
-
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, HttpResponse, Responder};
 use rsa::pkcs8::EncodePublicKey;
 use serde_json::json;
 
 #[get("/actor")]
-pub async fn actor(config: web::Data<config::Config>) -> impl Responder {
+pub async fn actor() -> impl Responder {
+    let config = crate::CONFIG.get().unwrap();
     let host = &config.server.host;
     let name = &config.user.name;
     let pubkey = crate::PRIVKEY

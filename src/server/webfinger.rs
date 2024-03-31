@@ -1,14 +1,11 @@
-use crate::config;
 use std::collections::HashMap;
 
 use actix_web::{get, web, HttpResponse, Responder};
 use serde_json::json;
 
 #[get("/.well-known/webfinger")]
-pub async fn webfinger(
-    config: web::Data<config::Config>,
-    query: web::Query<HashMap<String, String>>,
-) -> impl Responder {
+pub async fn webfinger(query: web::Query<HashMap<String, String>>) -> impl Responder {
+    let config = crate::CONFIG.get().unwrap();
     let host = &config.server.host;
     let name = &config.user.name;
 

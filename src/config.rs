@@ -3,13 +3,13 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Config {
     pub server: ServerConfig,
     pub user: UserConfig,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct ServerConfig {
     pub db: PathBuf,
     pub host: String,
@@ -19,7 +19,7 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct UserConfig {
     pub name: String,
     pub privkey: PathBuf,

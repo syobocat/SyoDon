@@ -1,10 +1,9 @@
-use crate::config;
-
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{get, HttpResponse, Responder};
 use serde_json::json;
 
 #[get("/.well-known/nodeinfo")]
-pub async fn nodeinfo(config: web::Data<config::Config>) -> impl Responder {
+pub async fn nodeinfo() -> impl Responder {
+    let config = crate::CONFIG.get().unwrap();
     let host = &config.server.host;
 
     let body = json!({
@@ -25,7 +24,8 @@ pub async fn nodeinfo(config: web::Data<config::Config>) -> impl Responder {
 }
 
 #[get("/nodeinfo/2.0.json")]
-pub async fn nodeinfo_20(config: web::Data<config::Config>) -> impl Responder {
+pub async fn nodeinfo_20() -> impl Responder {
+    let config = crate::CONFIG.get().unwrap();
     let name = &config.server.name;
     let desc = &config.server.desc;
 
@@ -55,7 +55,8 @@ pub async fn nodeinfo_20(config: web::Data<config::Config>) -> impl Responder {
 }
 
 #[get("/nodeinfo/2.1.json")]
-pub async fn nodeinfo_21(config: web::Data<config::Config>) -> impl Responder {
+pub async fn nodeinfo_21() -> impl Responder {
+    let config = crate::CONFIG.get().unwrap();
     let name = &config.server.name;
     let desc = &config.server.desc;
 
