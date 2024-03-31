@@ -20,7 +20,7 @@ pub async fn nodeinfo(config: web::Data<config::Config>) -> impl Responder {
         ]
     });
     HttpResponse::Ok()
-        .content_type("application/jrd+json")
+        .content_type("application/json; charset=utf-8")
         .json(body)
 }
 
@@ -50,7 +50,7 @@ pub async fn nodeinfo_20(config: web::Data<config::Config>) -> impl Responder {
         }
     });
     HttpResponse::Ok()
-        .content_type("application/jrd+json")
+        .content_type("application/json; profile=http://nodeinfo.diaspora.software/ns/schema/2.0#; charset=utf-8")
         .json(body)
 }
 
@@ -81,6 +81,6 @@ pub async fn nodeinfo_21(config: web::Data<config::Config>) -> impl Responder {
         }
     });
     HttpResponse::Ok()
-        .content_type("application/jrd+json")
+        .content_type("application/json; profile=http://nodeinfo.diaspora.software/ns/schema/2.1#; charset=utf-8")
         .json(body)
 }

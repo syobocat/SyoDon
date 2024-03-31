@@ -31,6 +31,6 @@ pub async fn actor(config: web::Data<config::Config>) -> impl Responder {
         }
     });
     HttpResponse::Ok()
-        .content_type("application/jrd+json")
+        .content_type("application/activity+json; charset=utf-8")
         .json(body)
 }

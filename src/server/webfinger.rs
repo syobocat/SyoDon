@@ -44,6 +44,6 @@ pub async fn webfinger(
         ]
     });
     HttpResponse::Ok()
-        .content_type("application/jrd+json")
+        .content_type("application/jrd+json; charset=utf-8")
         .json(body)
 }
