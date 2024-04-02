@@ -3,6 +3,7 @@ use log::info;
 
 mod actor;
 mod nodeinfo;
+mod post;
 mod webfinger;
 
 #[actix_web::get("/hello/{name}")]
@@ -23,6 +24,7 @@ pub async fn serve() -> std::io::Result<()> {
             .service(nodeinfo::nodeinfo)
             .service(nodeinfo::nodeinfo_20)
             .service(nodeinfo::nodeinfo_21)
+            .service(post::post)
     })
     .bind((config.server.bind, config.server.port))?
     .run()

@@ -24,13 +24,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if !config.user.privkey.exists() {
         if cli::ask_confirmation("Privkey not found. Generate one now?") {
-            setup::genkey(&config.user.privkey)?;
+            setup::generate_privkey(&config.user.privkey)?;
         } else {
             std::process::exit(0);
         }
     }
     let pem = std::fs::read_to_string(&config.user.privkey).unwrap();
     PRIVKEY.set(RsaPrivateKey::from_pkcs8_pem(&pem)?).unwrap();
+
+    if !config.server.db.exists() {
+        if cli::ask_confirmation("Database not found. Create it now?") {
+            setup::prepare_database(&config.server.db)?;
+        } else {
+            std::process::exit(0);
+        }
+    }
+
+    //service::post::create("This is test :)".to_owned()).await?;
 
     match args.subcommand {
         SubCommand::Run => server::serve().await?,

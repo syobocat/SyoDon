@@ -3,7 +3,7 @@ use rsa::pkcs8::EncodePublicKey;
 use serde_json::json;
 
 #[get("/actor")]
-pub async fn actor() -> impl Responder {
+async fn actor() -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
     let host = &config.server.host;
     let name = &config.user.name;

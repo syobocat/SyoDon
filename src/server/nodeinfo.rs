@@ -2,7 +2,7 @@ use actix_web::{get, HttpResponse, Responder};
 use serde_json::json;
 
 #[get("/.well-known/nodeinfo")]
-pub async fn nodeinfo() -> impl Responder {
+async fn nodeinfo() -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
     let host = &config.server.host;
 
@@ -24,7 +24,7 @@ pub async fn nodeinfo() -> impl Responder {
 }
 
 #[get("/nodeinfo/2.0.json")]
-pub async fn nodeinfo_20() -> impl Responder {
+async fn nodeinfo_20() -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
     let name = &config.server.name;
     let desc = &config.server.desc;
@@ -55,7 +55,7 @@ pub async fn nodeinfo_20() -> impl Responder {
 }
 
 #[get("/nodeinfo/2.1.json")]
-pub async fn nodeinfo_21() -> impl Responder {
+async fn nodeinfo_21() -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
     let name = &config.server.name;
     let desc = &config.server.desc;
