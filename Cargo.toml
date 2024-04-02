@@ -7,13 +7,14 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.5.1"
+base64 = "0.22.0"
 chrono = "0.4.37"
 clap = { version = "4.5.4", features = ["derive"] }
 env_logger = "0.11.3"
 log = "0.4.21"
 markdown = "0.3.0"
 rand = "0.8.5"
-rsa = "0.9.6"
+rsa = { version = "0.9.6", features = ["sha2"] }
 serde = { version = "1.0.197", features = ["serde_derive"] }
 serde_json = "1.0.115"
 toml = "0.8.12"
