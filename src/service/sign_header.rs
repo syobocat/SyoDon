@@ -23,7 +23,7 @@ pub fn create_header(
     let url_host = url.host().unwrap_or_default();
     let url_path = url.path();
 
-    let date_rfc822 = date.to_rfc2822().replace("+0000", "GMT");
+    let date_rfc7231 = date.to_rfc2822().replace("+0000", "GMT");
 
     let privkey = crate::PRIVKEY.get().unwrap().clone();
     let mut signingkey = SigningKey::<Sha256>::new(privkey);
@@ -56,7 +56,7 @@ pub fn create_header(
             header.insert(
                 "Signature".to_owned(),
                 format!(
-                    "keyId=\"https://{host}/actor#main-key\",headers=\"(request-target) host date digest\",signature=\"{signature_base64}\""
+                    "keyId=\"https://{host}/actor#main-key\",algorithm=\"rsa-sha256\",headers=\"(request-target) host date digest\",signature=\"{signature_base64}\""
                 ),
             );
             header.insert(
@@ -67,7 +67,7 @@ pub fn create_header(
     }
 
     header.insert("Host".to_owned(), url_host.to_owned());
-    header.insert("Date".to_owned(), date_rfc822);
+    header.insert("Date".to_owned(), date_rfc7231);
 
     header
 }
