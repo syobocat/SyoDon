@@ -1,6 +1,7 @@
 use actix_multipart::form::{text::Text, MultipartForm};
 use actix_web::{get, post, HttpResponse, Responder};
 use base64::{prelude::BASE64_STANDARD, Engine};
+use log::{error, info};
 use rand::{thread_rng, Rng, RngCore};
 use rusqlite::Connection;
 use serde_json::json;
@@ -30,21 +31,19 @@ async fn apps(MultipartForm(form): MultipartForm<Application>) -> impl Responder
     rng.fill_bytes(&mut client_secret);
     let client_secret_base64 = BASE64_STANDARD.encode(client_secret);
 
-    let Ok(conn) = Connection::open(db) else {
+    let Ok(conn) = Connection::open(db).inspect_err(|e| error!("Failed to open database: {e}"))
+    else {
         return HttpResponse::InternalServerError().finish();
     };
-    if conn
-        .execute(
-            "INSERT INTO apps (client_id, client_secret, name, redirect_uri) VALUES (?1, ?2, ?3, ?4, ?5)",
-            (
-                &client_id_base64,
-                &client_secret_base64,
-                &client_name,
-                &redirect_uris,
-            ),
-        )
-        .is_err()
-    {
+    if conn.execute(
+        "INSERT INTO apps (client_id, client_secret, name, redirect_uri) VALUES (?1, ?2, ?3, ?4)",
+        (
+            &client_id_base64,
+            &client_secret_base64,
+            &client_name,
+            &redirect_uris,
+        ),
+    ).inspect_err(|e| error!("Failed to register app: {e}")).is_err() {
         return HttpResponse::InternalServerError().finish();
     };
 
@@ -57,6 +56,7 @@ async fn apps(MultipartForm(form): MultipartForm<Application>) -> impl Responder
         "client_secret": client_secret_base64
     });
 
+    info!("New application has been registered: {client_name}");
     HttpResponse::Ok()
         .content_type("application/json; charset=utf-8")
         .json(body)
