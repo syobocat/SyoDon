@@ -1,6 +1,6 @@
 use actix_multipart::form::{text::Text, MultipartForm};
 use actix_web::{get, post, HttpResponse, Responder};
-use base64::{prelude::BASE64_STANDARD, Engine};
+use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
 use log::{error, info};
 use rand::{thread_rng, Rng, RngCore};
 use rusqlite::Connection;
@@ -25,11 +25,11 @@ async fn apps(MultipartForm(form): MultipartForm<Application>) -> impl Responder
     let mut rng = thread_rng();
     let mut client_id = [0u8; 32];
     rng.fill_bytes(&mut client_id);
-    let client_id_base64 = BASE64_STANDARD.encode(&client_id);
+    let client_id_base64 = BASE64_URL_SAFE_NO_PAD.encode(&client_id);
 
     let mut client_secret = [0u8; 32];
     rng.fill_bytes(&mut client_secret);
-    let client_secret_base64 = BASE64_STANDARD.encode(client_secret);
+    let client_secret_base64 = BASE64_URL_SAFE_NO_PAD.encode(client_secret);
 
     let Ok(conn) = Connection::open(db).inspect_err(|e| error!("Failed to open database: {e}"))
     else {
