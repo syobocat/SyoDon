@@ -33,7 +33,7 @@ pub fn create_header(
     match method {
         Method::Get => {
             let signature_string =
-                format!("(request-target): get {url_path}\nhost: {host}\ndate: {date_rfc822}");
+                format!("(request-target): get {url_path}\nhost: {host}\ndate: {date_rfc7231}");
             let hashed_signature = signingkey.sign(&signature_string.into_bytes());
             let signature_base64 = BASE64_STANDARD.encode(hashed_signature.to_bytes());
             header.insert(
@@ -48,7 +48,7 @@ pub fn create_header(
             let digest_base64 = BASE64_STANDARD.encode(digest);
 
             let signature_string = format!(
-                "(request-target): post {url_path}\nhost: {host}\ndate: {date_rfc822}\ndigest: sha-256={digest_base64}"
+                "(request-target): post {url_path}\nhost: {host}\ndate: {date_rfc7231}\ndigest: sha-256={digest_base64}"
             );
             let hashed_signature = signingkey.sign(&signature_string.into_bytes());
             let signature_base64 = BASE64_STANDARD.encode(hashed_signature.to_bytes());
