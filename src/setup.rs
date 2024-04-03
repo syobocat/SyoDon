@@ -33,6 +33,15 @@ pub fn prepare_database(path: &PathBuf) -> Result<(), Box<dyn std::error::Error>
         )",
         (),
     )?;
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS apps (
+            client_id TEXT PRIMARY KEY,
+            client_secret TEXT,
+            name TEXT,
+            redirect_uri TEXT
+        )",
+        (),
+    )?;
 
     println!("Database is ready.");
 
