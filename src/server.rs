@@ -2,6 +2,7 @@ use actix_web::{App, HttpServer};
 use log::info;
 
 mod actor;
+mod api;
 mod nodeinfo;
 mod post;
 mod webfinger;
@@ -25,6 +26,8 @@ pub async fn serve() -> std::io::Result<()> {
             .service(nodeinfo::nodeinfo_20)
             .service(nodeinfo::nodeinfo_21)
             .service(post::post)
+            .service(api::apps::apps)
+            .service(api::apps::get_apps)
     })
     .bind((config.server.bind, config.server.port))?
     .run()
