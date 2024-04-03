@@ -5,7 +5,7 @@ use serde_json::json;
 #[get("/actor")]
 async fn actor() -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
-    let host = &config.server.host;
+    let url = &config.server.url;
     let name = &config.user.name;
     let pubkey = crate::PRIVKEY
         .get()
@@ -19,13 +19,13 @@ async fn actor() -> impl Responder {
             "https://www.w3.org/ns/activitystreams",
             "https://w3id.org/security/v1"
         ],
-        "id": format!("https://{host}/actor"),
+        "id": format!("{url}actor"),
         "type": "Person",
         "preferredUsername": name,
-        "inbox": format!("https://{host}/inbox"),
+        "inbox": format!("{url}inbox"),
         "publicKey": {
-            "id": format!("https://{host}/actor#main-key"),
-            "owner": format!("https://{host}/actor"),
+            "id": format!("{url}actor#main-key"),
+            "owner": format!("{url}actor"),
             "publicKeyPem": pubkey
         }
     });

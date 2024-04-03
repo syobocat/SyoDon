@@ -4,16 +4,16 @@ use serde_json::json;
 #[get("/.well-known/nodeinfo")]
 async fn nodeinfo() -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
-    let host = &config.server.host;
+    let url = &config.server.url;
 
     let body = json!({
         "links": [
             {
-                "href": format!("https://{host}/nodeinfo/2.0.json"),
+                "href": format!("{url}nodeinfo/2.0.json"),
                 "rel": "http://nodeinfo.diaspora.software/ns/schema/2.0"
             },
             {
-                "href": format!("https://{host}/nodeinfo/2.1.json"),
+                "href": format!("{url}nodeinfo/2.1.json"),
                 "rel": "http://nodeinfo.diaspora.software/ns/schema/2.1"
             }
         ]

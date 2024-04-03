@@ -15,13 +15,14 @@ pub fn create_header(
     method: Method,
     body: serde_json::Value,
     date: DateTime<Utc>,
-    url: Uri,
+    dest: Uri,
 ) -> HashMap<String, String> {
     let config = crate::CONFIG.get().unwrap();
-    let host = &config.server.host;
+    let url = &config.server.url;
+    let host = url.host().unwrap();
 
-    let url_host = url.host().unwrap_or_default();
-    let url_path = url.path();
+    let dest_host = dest.host().unwrap_or_default();
+    let dest_path = dest.path();
 
     let date_rfc7231 = date.to_rfc2822().replace("+0000", "GMT");
 
@@ -33,13 +34,13 @@ pub fn create_header(
     match method {
         Method::Get => {
             let signature_string =
-                format!("(request-target): get {url_path}\nhost: {host}\ndate: {date_rfc7231}");
+                format!("(request-target): get {dest_path}\nhost: {host}\ndate: {date_rfc7231}");
             let hashed_signature = signingkey.sign(&signature_string.into_bytes());
             let signature_base64 = BASE64_STANDARD.encode(hashed_signature.to_bytes());
             header.insert(
                 "Signature".to_owned(),
                 format!(
-                    "keyId=\"https://{host}/actor#main-key\",headers=\"(request-target) host date\",signature=\"{signature_base64}\""
+                    "keyId=\"{url}actor#main-key\",headers=\"(request-target) host date\",signature=\"{signature_base64}\""
                 ),
             );
         }
@@ -48,7 +49,7 @@ pub fn create_header(
             let digest_base64 = BASE64_STANDARD.encode(digest);
 
             let signature_string = format!(
-                "(request-target): post {url_path}\nhost: {host}\ndate: {date_rfc7231}\ndigest: sha-256={digest_base64}"
+                "(request-target): post {dest_path}\nhost: {host}\ndate: {date_rfc7231}\ndigest: sha-256={digest_base64}"
             );
             let hashed_signature = signingkey.sign(&signature_string.into_bytes());
             let signature_base64 = BASE64_STANDARD.encode(hashed_signature.to_bytes());
@@ -56,7 +57,7 @@ pub fn create_header(
             header.insert(
                 "Signature".to_owned(),
                 format!(
-                    "keyId=\"https://{host}/actor#main-key\",algorithm=\"rsa-sha256\",headers=\"(request-target) host date digest\",signature=\"{signature_base64}\""
+                    "keyId=\"{url}actor#main-key\",algorithm=\"rsa-sha256\",headers=\"(request-target) host date digest\",signature=\"{signature_base64}\""
                 ),
             );
             header.insert(
@@ -66,7 +67,7 @@ pub fn create_header(
         }
     }
 
-    header.insert("Host".to_owned(), url_host.to_owned());
+    header.insert("Host".to_owned(), dest_host.to_owned());
     header.insert("Date".to_owned(), date_rfc7231);
 
     header

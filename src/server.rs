@@ -15,7 +15,7 @@ async fn greet(name: actix_web::web::Path<String>) -> impl actix_web::Responder 
 pub async fn serve() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::default().default_filter_or("syodon=info"));
     let config = crate::CONFIG.get().unwrap();
-    info!("This is {}!", config.server.host);
+    info!("This is {}!", config.server.url.host_str().unwrap());
 
     HttpServer::new(move || {
         App::new()

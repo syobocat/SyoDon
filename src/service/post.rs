@@ -6,7 +6,7 @@ use ulid::Ulid;
 pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::CONFIG.get().unwrap();
     let db = &config.server.db;
-    let host = &config.server.host;
+    let url = &config.server.url;
 
     let html = markdown::to_html(&content);
     let id = Ulid::new();
@@ -22,19 +22,19 @@ pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
         "@context": "https://www.w3.org/ns/activitystreams",
         "id": id.to_string(),
         "type": "Create",
-        "actor": format!("https://{host}/actor"),
+        "actor": format!("{url}actor"),
         "published": time,
         "to": ["https://www.w3.org/ns/activitystreams#Public"],
-        "cc": [format!("https://{host}/followers")],
+        "cc": [format!("{url}followers")],
         "object": {
-            "id": format!("https://{host}/post/{id}"),
+            "id": format!("{url}post/{id}"),
             "type": "Note",
-            "attributedTo": format!("https://{host}/profile"),
+            "attributedTo": format!("{url}profile"),
             "content": html,
-            "url": format!("https://{host}/post/{id}"),
+            "url": format!("{url}post/{id}"),
             "published": time,
             "to": ["https://www.w3.org/ns/activitystreams#Public"],
-            "cc": [format!("https://{host}/followers")]
+            "cc": [format!("{url}followers")]
         }
     });
 

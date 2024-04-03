@@ -5,7 +5,7 @@ use serde_json::json;
 #[get("/post/{id}")]
 async fn post(path: web::Path<String>) -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
-    let host = &config.server.host;
+    let url = &config.server.url;
     let db = &config.server.db;
 
     let id = path.into_inner();
@@ -27,10 +27,10 @@ async fn post(path: web::Path<String>) -> impl Responder {
 
     let body = json!({
         "@context": "https://www.w3.org/ns/activitystreams",
-        "id": format!("https://{host}/{id}"),
+        "id": format!("{url}{id}"),
         "type": "Note",
         "published": date,
-        "attributedTo": format!("https://{host}/actor"),
+        "attributedTo": format!("{url}actor"),
         "content": content,
         "to": "https://www.w3.org/ns/activitystreams#Public"
     });
