@@ -1,23 +1,21 @@
-use std::path::PathBuf;
-
 use rsa::{pkcs8::EncodePrivateKey, RsaPrivateKey};
 use rusqlite::Connection;
 
 pub fn generate_privkey() -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::CONFIG.get().unwrap();
-    let privkey = &config.user.privkey;
+    let path = &config.user.privkey;
 
-    if privkey.exists() {
+    if path.exists() {
         eprintln!("Privkey file already exists!");
         std::process::exit(1);
     }
 
     println!("Generating private key...");
     let mut rng = rand::thread_rng();
-    let priv_key = RsaPrivateKey::new(&mut rng, 2048)
+    let privkey = RsaPrivateKey::new(&mut rng, 2048)
         .inspect_err(|e| eprintln!("Failed to generate a key: {e}"))?;
-    priv_key
-        .write_pkcs8_pem_file(privkey, rsa::pkcs8::LineEnding::LF)
+    privkey
+        .write_pkcs8_pem_file(path, rsa::pkcs8::LineEnding::LF)
         .inspect_err(|e| eprintln!("Failed to write a key into a file: {e}"))?;
 
     println!("Private key generated.");

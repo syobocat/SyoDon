@@ -8,7 +8,7 @@ pub fn accept(client_id: String) -> Result<(), Box<dyn std::error::Error>> {
 
     let mut code = [0u8; 32];
     thread_rng().fill_bytes(&mut code);
-    let code_base64 = BASE64_URL_SAFE_NO_PAD.encode(&code);
+    let code_base64 = BASE64_URL_SAFE_NO_PAD.encode(code);
 
     let conn = Connection::open(db)?;
     conn.execute(

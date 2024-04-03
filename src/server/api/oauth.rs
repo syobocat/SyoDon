@@ -104,7 +104,7 @@ async fn token(query: web::Query<TokenRequest>) -> impl Responder {
 
     let mut token = [0u8; 32];
     thread_rng().fill_bytes(&mut token);
-    let token_base64 = BASE64_URL_SAFE_NO_PAD.encode(&token);
+    let token_base64 = BASE64_URL_SAFE_NO_PAD.encode(token);
 
     if conn
         .execute(

@@ -25,7 +25,7 @@ async fn apps(MultipartForm(form): MultipartForm<Application>) -> impl Responder
     let mut rng = thread_rng();
     let mut client_id = [0u8; 32];
     rng.fill_bytes(&mut client_id);
-    let client_id_base64 = BASE64_URL_SAFE_NO_PAD.encode(&client_id);
+    let client_id_base64 = BASE64_URL_SAFE_NO_PAD.encode(client_id);
 
     let mut client_secret = [0u8; 32];
     rng.fill_bytes(&mut client_secret);
@@ -50,7 +50,7 @@ async fn apps(MultipartForm(form): MultipartForm<Application>) -> impl Responder
     let body = json!({
         "id": rng.gen::<u16>().to_string(),
         "name": client_name,
-        "website": form.website.map(|text| text.into_inner()),
+        "website": form.website.map(actix_multipart::form::text::Text::into_inner),
         "redirect_uri": redirect_uris,
         "client_id": client_id_base64,
         "client_secret": client_secret_base64

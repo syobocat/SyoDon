@@ -44,10 +44,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match args.subcommand {
         SubCommand::Run => server::serve().await?,
         SubCommand::Setup => {
-            if !config.user.privkey.exists() {
-                cli::setup::generate_privkey()?;
-            } else {
+            if config.user.privkey.exists() {
                 println!("Privkey has already been generated. Skipping...");
+            } else {
+                cli::setup::generate_privkey()?;
             }
             cli::setup::prepare_database()?;
         }

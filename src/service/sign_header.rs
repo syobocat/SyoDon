@@ -13,9 +13,9 @@ use super::Method;
 
 pub fn create_header(
     method: Method,
-    body: serde_json::Value,
+    body: &serde_json::Value,
     date: DateTime<Utc>,
-    dest: Uri,
+    dest: &Uri,
 ) -> HashMap<String, String> {
     let config = crate::CONFIG.get().unwrap();
     let url = &config.server.url;
@@ -45,7 +45,7 @@ pub fn create_header(
             );
         }
         Method::Post => {
-            let digest = Sha256::digest(&serde_json::to_vec(&body).unwrap());
+            let digest = Sha256::digest(serde_json::to_vec(&body).unwrap());
             let digest_base64 = BASE64_STANDARD.encode(digest);
 
             let signature_string = format!(
