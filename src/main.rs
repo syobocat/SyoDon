@@ -2,12 +2,11 @@ mod cli;
 mod config;
 mod server;
 mod service;
-mod setup;
 
 use std::sync::OnceLock;
 
 use clap::Parser;
-use cli::SubCommand;
+use cli::{OauthCommand, SubCommand};
 use rsa::{pkcs8::DecodePrivateKey, RsaPrivateKey};
 
 pub static CONFIG: OnceLock<config::Config> = OnceLock::new();
@@ -24,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if !config.user.privkey.exists() {
         if cli::ask_confirmation("Privkey not found. Generate one now?") {
-            setup::generate_privkey(&config.user.privkey)?;
+            cli::setup::generate_privkey()?;
         } else {
             std::process::exit(0);
         }
@@ -34,7 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if !config.server.db.exists() {
         if cli::ask_confirmation("Database not found. Create it now?") {
-            setup::prepare_database(&config.server.db)?;
+            cli::setup::prepare_database()?;
         } else {
             std::process::exit(0);
         }
@@ -46,12 +45,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         SubCommand::Run => server::serve().await?,
         SubCommand::Setup => {
             if !config.user.privkey.exists() {
-                setup::generate_privkey(&config.user.privkey)?;
+                cli::setup::generate_privkey()?;
             } else {
                 println!("Privkey has already been generated. Skipping...");
             }
-            setup::prepare_database(&config.server.db)?;
+            cli::setup::prepare_database()?;
         }
+        SubCommand::Oauth(oauthcommand) => match oauthcommand.command {
+            OauthCommand::Accept { client_id } => cli::oauth::accept(client_id)?,
+            OauthCommand::Revoke { client_id } => cli::oauth::revoke(client_id)?,
+        },
     }
 
     Ok(())

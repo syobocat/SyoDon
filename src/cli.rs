@@ -1,17 +1,20 @@
+pub mod oauth;
+pub mod setup;
+
 use std::io::{stdin, stdout, Write};
 
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
-#[clap(
+#[command(
     version = env!("CARGO_PKG_VERSION"),
     author = env!("CARGO_PKG_AUTHORS"),
     about = env!("CARGO_PKG_DESCRIPTION"),
 )]
 pub struct Arg {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     pub subcommand: SubCommand,
-    #[clap(short, long, value_name = "CONFIG_FILE", default_value = "config.toml")]
+    #[arg(short, long, value_name = "CONFIG_FILE", default_value = "config.toml")]
     pub config: std::path::PathBuf,
 }
 
@@ -19,6 +22,19 @@ pub struct Arg {
 pub enum SubCommand {
     Run,
     Setup,
+    Oauth(OauthArgs),
+}
+
+#[derive(Args)]
+pub struct OauthArgs {
+    #[command(subcommand)]
+    pub command: OauthCommand,
+}
+
+#[derive(Subcommand)]
+pub enum OauthCommand {
+    Accept { client_id: String },
+    Revoke { client_id: String },
 }
 
 fn readline() -> String {

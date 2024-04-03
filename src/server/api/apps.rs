@@ -36,7 +36,7 @@ async fn apps(MultipartForm(form): MultipartForm<Application>) -> impl Responder
         return HttpResponse::InternalServerError().finish();
     };
     if conn.execute(
-        "INSERT INTO apps (client_id, client_secret, name, redirect_uri) VALUES (?1, ?2, ?3, ?4)",
+        "INSERT INTO apps (client_id, client_secret, name, redirect_uri, code) VALUES (?1, ?2, ?3, ?4, NULL)",
         (
             &client_id_base64,
             &client_secret_base64,
