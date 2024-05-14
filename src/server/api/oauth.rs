@@ -1,9 +1,11 @@
 use actix_web::{get, post, web, HttpResponse, Responder};
 use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
+use chrono::Utc;
 use log::{error, info};
 use rand::{thread_rng, RngCore};
 use rusqlite::Connection;
 use serde::Deserialize;
+use serde_json::json;
 
 #[derive(Deserialize)]
 struct OAuthRequest {
@@ -66,7 +68,7 @@ async fn authorize(query: web::Query<OAuthRequest>) -> impl Responder {
 }
 
 #[post("/oauth/token")]
-async fn token(query: web::Query<TokenRequest>) -> impl Responder {
+async fn token(web::Form(query): web::Form<TokenRequest>) -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
     let db = &config.server.db;
 
@@ -106,10 +108,12 @@ async fn token(query: web::Query<TokenRequest>) -> impl Responder {
     thread_rng().fill_bytes(&mut token);
     let token_base64 = BASE64_URL_SAFE_NO_PAD.encode(token);
 
+    let created_at = Utc::now().timestamp();
+
     if conn
         .execute(
             "INSERT INTO token (issuer, token) VALUES (?1, ?2)",
-            (&query.client_id, token_base64),
+            (&query.client_id, &token_base64),
         )
         .inspect_err(|e| error!("Failed to register token: {e}"))
         .is_err()
@@ -119,5 +123,14 @@ async fn token(query: web::Query<TokenRequest>) -> impl Responder {
 
     info!("New token has been issued by {}", query.client_id);
 
-    HttpResponse::Ok().finish()
+    let body = json!({
+        "access_token": token_base64,
+        "token_type": "Bearer",
+        "scope": "read write follow push",
+        "created_at": created_at
+    });
+
+    HttpResponse::Ok()
+        .content_type("application/json; charset=utf-8")
+        .json(body)
 }

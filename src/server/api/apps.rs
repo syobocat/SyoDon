@@ -1,4 +1,4 @@
-use actix_web::{get, post, web::Form, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine};
 use log::{error, info};
 use rand::{thread_rng, Rng, RngCore};
@@ -17,7 +17,7 @@ struct Application {
 }
 
 #[post("/api/v1/apps")]
-async fn apps(Form(form): Form<Application>) -> impl Responder {
+async fn apps(web::Form(form): web::Form<Application>) -> impl Responder {
     let config = crate::CONFIG.get().unwrap();
     let db = &config.server.db;
 
@@ -38,7 +38,7 @@ async fn apps(Form(form): Form<Application>) -> impl Responder {
         return HttpResponse::InternalServerError().finish();
     };
     if conn.execute(
-        "INSERT INTO apps (client_id, client_secret, name, redirect_uri, code) VALUES (?1, ?2, ?3, ?4, NULL)",
+        "INSERT INTO apps (client_id, client_secret, name, redirect_uris, code) VALUES (?1, ?2, ?3, ?4, NULL)",
         (
             &client_id_base64,
             &client_secret_base64,

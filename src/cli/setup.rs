@@ -42,7 +42,7 @@ pub fn prepare_database() -> Result<(), Box<dyn std::error::Error>> {
             client_id TEXT PRIMARY KEY,
             client_secret TEXT NOT NULL,
             name TEXT NOT NULL,
-            redirect_uri TEXT NOT NULL,
+            redirect_uris TEXT NOT NULL,
             code TEXT
         )",
         (),
