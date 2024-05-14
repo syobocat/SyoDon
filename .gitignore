@@ -1,4 +1,4 @@
 /target
 /config.toml
 /privkey.pem
-/database.sql
+/database.db

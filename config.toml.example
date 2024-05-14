@@ -1,0 +1,11 @@
+[server]
+db = "database.db"
+url = "https://syodon.example.com"
+name = "SyoDon"
+desc = "SyoDon is a minimalistic ActivityPub server software!"
+bind = "127.0.0.1"
+port = 3000
+
+[user]
+name = "admin"
+privkey = "privkey.pem"

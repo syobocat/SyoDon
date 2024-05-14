@@ -15,6 +15,7 @@ env_logger = "0.11.3"
 log = "0.4.21"
 markdown = "0.3.0"
 rand = "0.8.5"
+reqwest = { version = "0.12.4", features = ["json"] }
 rsa = { version = "0.9.6", features = ["sha2"] }
 rusqlite = "0.31.0"
 serde = { version = "1.0.197", features = ["serde_derive"] }
