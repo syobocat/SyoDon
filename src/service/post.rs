@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use chrono::{SecondsFormat, Utc};
 use log::{error, info};
 use reqwest::Client;
-use rusqlite::Connection;
+use rusqlite::{Connection, OptionalExtension};
 use serde_json::json;
 use ulid::Ulid;
 use url::Url;
@@ -30,38 +30,39 @@ pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Successfully stored note: {id}");
 
-    // Prioritize sharedInbox if exists
     let mut stmt = conn.prepare("SELECT shared_inbox, inbox FROM followers")?;
-    let dests: HashSet<String> = stmt
-        .query_map([], |row| row.get(0).or(row.get(1)))?
-        .filter_map(|res| res.ok())
-        .collect();
+    if let Some(query) = stmt
+        .query_map([], |row| row.get(0).or(row.get(1)))
+        .optional()?
+    {
+        let dests: HashSet<String> = query.filter_map(|res| res.ok()).collect();
 
-    let body = json!({
-        "@context": "https://www.w3.org/ns/activitystreams",
-        "id": id.to_string(),
-        "type": "Create",
-        "actor": format!("{url}actor"),
-        "published": time_str,
-        "to": ["https://www.w3.org/ns/activitystreams#Public"],
-        "cc": [format!("{url}followers")],
-        "object": {
-            "id": format!("{url}post/{id}"),
-            "type": "Note",
-            "attributedTo": format!("{url}profile"),
-            "content": html,
-            "url": format!("{url}post/{id}"),
+        let body = json!({
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "id": id.to_string(),
+            "type": "Create",
+            "actor": format!("{url}actor"),
             "published": time_str,
             "to": ["https://www.w3.org/ns/activitystreams#Public"],
-            "cc": [format!("{url}followers")]
-        }
-    });
+            "cc": [format!("{url}followers")],
+            "object": {
+                "id": format!("{url}post/{id}"),
+                "type": "Note",
+                "attributedTo": format!("{url}profile"),
+                "content": html,
+                "url": format!("{url}post/{id}"),
+                "published": time_str,
+                "to": ["https://www.w3.org/ns/activitystreams#Public"],
+                "cc": [format!("{url}followers")]
+            }
+        });
 
-    let client = Client::new();
-    for dest in dests {
-        let url: Url = dest.parse()?;
-        let header = create_header(Method::Post, &body, time, &url);
-        client.post(url).headers(header).json(&body).send().await?;
+        let client = Client::new();
+        for dest in dests {
+            let url: Url = dest.parse()?;
+            let header = create_header(Method::Post, &body, time, &url);
+            client.post(url).headers(header).json(&body).send().await?;
+        }
     }
 
     Ok(())
