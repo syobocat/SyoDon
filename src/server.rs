@@ -30,6 +30,7 @@ pub async fn serve() -> std::io::Result<()> {
             .service(api::apps::get_apps)
             .service(api::oauth::authorize)
             .service(api::oauth::token)
+            .service(api::statuses::create_status)
     })
     .bind((config.server.bind, config.server.port))?
     .run()

@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 actix-multipart = "0.6.1"
 actix-web = "4.5.1"
+actix-web-httpauth = "0.8.1"
 base64 = "0.22.0"
 chrono = "0.4.37"
 clap = { version = "4.5.4", features = ["derive"] }

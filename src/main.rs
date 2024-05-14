@@ -1,5 +1,6 @@
 mod cli;
 mod config;
+mod models;
 mod server;
 mod service;
 
