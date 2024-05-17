@@ -20,7 +20,7 @@ pub struct Activity {
     pub object: serde_json::Value,
 }
 
-// We provably need more fields
+// We probably need more fields
 #[derive(Serialize, Deserialize)]
 pub struct Actor {
     pub followers: Url,
