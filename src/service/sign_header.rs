@@ -8,14 +8,9 @@ use rsa::{
 };
 use url::Url;
 
-use super::Method;
+use crate::structs::Method;
 
-pub fn create_header(
-    method: Method,
-    body: &serde_json::Value,
-    date: DateTime<Utc>,
-    dest: &Url,
-) -> HeaderMap {
+pub fn create_header(method: Method, body: &serde_json::Value, dest: &Url) -> HeaderMap {
     let config = crate::CONFIG.get().unwrap();
     let url = &config.server.url;
     let host = url.host().unwrap();
@@ -23,6 +18,7 @@ pub fn create_header(
     let dest_host = dest.host().unwrap();
     let dest_path = dest.path();
 
+    let date = Utc::now();
     let date_rfc7231 = date.to_rfc2822().replace("+0000", "GMT");
 
     let privkey = crate::PRIVKEY.get().unwrap().clone();

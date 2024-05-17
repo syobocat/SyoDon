@@ -23,6 +23,8 @@ pub enum SubCommand {
     Run,
     Setup,
     Oauth(OauthArgs),
+    Post(PostArgs),
+    Follow(FollowArgs),
 }
 
 #[derive(Args)]
@@ -35,6 +37,30 @@ pub struct OauthArgs {
 pub enum OauthCommand {
     Accept { client_id: String },
     Revoke { client_id: String },
+}
+
+#[derive(Args)]
+pub struct PostArgs {
+    #[command(subcommand)]
+    pub command: PostCommand,
+}
+
+#[derive(Subcommand)]
+pub enum PostCommand {
+    Create { content: String },
+    Delete { id: String },
+}
+
+#[derive(Args)]
+pub struct FollowArgs {
+    #[command(subcommand)]
+    pub command: FollowCommand,
+}
+
+#[derive(Subcommand)]
+pub enum FollowCommand {
+    Add { acct: String },
+    Delete { acct: String },
 }
 
 fn readline() -> String {

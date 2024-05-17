@@ -3,6 +3,7 @@ use log::info;
 
 mod actor;
 mod api;
+mod inbox;
 mod nodeinfo;
 mod post;
 mod webfinger;
@@ -26,6 +27,7 @@ pub async fn serve() -> std::io::Result<()> {
             .service(nodeinfo::nodeinfo_20)
             .service(nodeinfo::nodeinfo_21)
             .service(post::post)
+            .service(inbox::inbox)
             .service(api::apps::apps)
             .service(api::apps::get_apps)
             .service(api::oauth::authorize)

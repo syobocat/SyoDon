@@ -2,11 +2,12 @@ mod cli;
 mod config;
 mod server;
 mod service;
+mod structs;
 
 use std::sync::OnceLock;
 
 use clap::Parser;
-use cli::{OauthCommand, SubCommand};
+use cli::{FollowCommand, OauthCommand, PostCommand, SubCommand};
 use rsa::{pkcs8::DecodePrivateKey, RsaPrivateKey};
 
 pub static CONFIG: OnceLock<config::Config> = OnceLock::new();
@@ -54,6 +55,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         SubCommand::Oauth(oauthcommand) => match oauthcommand.command {
             OauthCommand::Accept { client_id } => cli::oauth::accept(client_id)?,
             OauthCommand::Revoke { client_id } => cli::oauth::revoke(client_id)?,
+        },
+        SubCommand::Post(postcommand) => match postcommand.command {
+            PostCommand::Create { content } => service::post::create(content).await?,
+            PostCommand::Delete { id } => {}
+        },
+        SubCommand::Follow(followcommand) => match followcommand.command {
+            FollowCommand::Add { acct } => {
+                service::user::follow_by_acct(acct).await?;
+            }
+            FollowCommand::Delete { acct } => {}
         },
     }
 

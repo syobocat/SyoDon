@@ -9,7 +9,7 @@ use ulid::Ulid;
 use url::Url;
 
 use super::sign_header::create_header;
-use super::Method;
+use crate::structs::Method;
 
 pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::CONFIG.get().unwrap();
@@ -60,7 +60,7 @@ pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
         let client = Client::new();
         for dest in dests {
             let url: Url = dest.parse()?;
-            let header = create_header(Method::Post, &body, time, &url);
+            let header = create_header(Method::Post, &body, &url);
             client.post(url).headers(header).json(&body).send().await?;
         }
     }
