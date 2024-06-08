@@ -6,7 +6,7 @@ use url::Url;
 
 use crate::structs::{Activity, Actor, Method};
 
-use super::sign_header::create_header;
+use super::httpsig::create_header;
 
 #[derive(Deserialize)]
 struct UserJson {

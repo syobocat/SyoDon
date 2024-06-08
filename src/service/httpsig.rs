@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use actix_web::{http, HttpRequest};
 use base64::{prelude::BASE64_STANDARD, Engine};
 use chrono::Utc;
 use reqwest::header::HeaderMap;
@@ -73,26 +74,27 @@ pub fn create_header(method: Method, body: &serde_json::Value, dest: &Url) -> He
     header
 }
 
-pub async fn verify_header(
-    dest: &Url,
-    method: Method,
-    header: HeaderMap,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn verify_header(request: HttpRequest) -> Result<(), Box<dyn std::error::Error>> {
+    let header = request.headers();
+    let method = request.method();
+
     let host = header.get("Host").ok_or("missing Host header")?.to_str()?;
     let date = header.get("Date").ok_or("missing Date header")?.to_str()?;
 
     let data = match method {
-        Method::Get => {
+        &http::Method::GET => {
+            let dest = request.uri();
             format!("(request-target): get {dest}\nhost: {host}\ndate: {date}")
         }
-        Method::Post => {
-            let dest_path = dest.path();
+        &http::Method::POST => {
+            let dest_path = request.path();
             let digest = header
                 .get("Digest")
                 .ok_or("missing Digest header")?
                 .to_str()?;
             format!("(request-target): post {dest_path}\nhost: {host}\ndate: {date}\ndigest: sha-256={digest}")
         }
+        _ => return Err("unsupported request".into()),
     };
 
     let signature_header_raw = header.get("Signature").ok_or("missing Signature header")?;

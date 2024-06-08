@@ -1,16 +1,23 @@
-use actix_web::{http::header, post, web, HttpResponse, Responder};
+use actix_web::{http::header, post, web, HttpRequest, HttpResponse, Responder};
 
-use crate::structs::{Activity, ActivityType};
+use crate::{
+    service::httpsig::verify_header,
+    structs::{Activity, ActivityType},
+};
 
 #[post("/inbox")]
 async fn inbox(
     web::Header(content_type): web::Header<header::ContentType>,
     web::Json(activity): web::Json<Activity>,
+    request: HttpRequest,
 ) -> impl Responder {
     let Some(mime) = content_type.suffix() else {
         return HttpResponse::BadRequest().finish();
     };
     if mime != "json" {
+        return HttpResponse::BadRequest().finish();
+    }
+    if verify_header(request).await.is_err() {
         return HttpResponse::BadRequest().finish();
     }
 

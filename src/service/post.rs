@@ -8,7 +8,7 @@ use serde_json::json;
 use ulid::Ulid;
 use url::Url;
 
-use super::sign_header::create_header;
+use super::httpsig::create_header;
 use crate::structs::Method;
 
 pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
