@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use actix_web::{get, web, HttpResponse, Responder};
+use log::debug;
 use serde_json::json;
 
 #[get("/.well-known/webfinger")]
@@ -21,6 +22,8 @@ async fn webfinger(query: web::Query<HashMap<String, String>>) -> impl Responder
         format!("{url}actor"),
         format!("{url}"),
     ];
+
+    debug!("webfinger requested for {resource}");
 
     if !acceptable.contains(resource) {
         return HttpResponse::NotFound().finish();

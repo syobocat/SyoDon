@@ -1,46 +1,12 @@
-use std::{
-    collections::HashSet,
-    sync::{Mutex, OnceLock},
-};
-
 use chrono::{SecondsFormat, Utc};
 use log::{error, info};
-use reqwest::Client;
-use rusqlite::{Connection, OptionalExtension};
+use rusqlite::Connection;
 use serde_json::json;
 use ulid::Ulid;
-use url::Url;
 
-use super::httpsig::create_header;
-use crate::structs::Method;
+use crate::service::deliver::deliver_to_followers;
 
-pub static INBOXES: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
-
-pub fn get_inboxes() -> &'static Mutex<HashSet<String>> {
-    INBOXES.get_or_init(|| {
-        let config = crate::CONFIG.get().unwrap();
-        let db = &config.server.db;
-
-        let conn = Connection::open(db).expect("failed to connect to the database");
-        let mut stmt = conn
-            .prepare("SELECT shared_inbox, inbox FROM followers")
-            .expect("failed to communicate with the database");
-        let query = stmt
-            .query_map([], |row| row.get(0).or(row.get(1)))
-            .optional()
-            .expect("failed to load followers");
-
-        let hashset = if let Some(query) = query {
-            query.filter_map(|res| res.ok()).collect()
-        } else {
-            HashSet::new()
-        };
-
-        Mutex::new(hashset)
-    })
-}
-
-pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn publish(content: String) -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::CONFIG.get().unwrap();
     let db = &config.server.db;
     let url = &config.server.url;
@@ -58,8 +24,6 @@ pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
     .inspect_err(|e| error!("Failed to store post: {e}"))?;
 
     info!("Successfully stored note: {id}");
-
-    let inboxes = get_inboxes().lock()?;
 
     let body = json!({
         "@context": "https://www.w3.org/ns/activitystreams",
@@ -81,12 +45,7 @@ pub async fn create(content: String) -> Result<(), Box<dyn std::error::Error>> {
         }
     });
 
-    let client = Client::new();
-    for inbox in inboxes.iter() {
-        let url: Url = inbox.parse()?;
-        let header = create_header(Method::Post, &body, &url);
-        client.post(url).headers(header).json(&body).send().await?;
-    }
+    deliver_to_followers(body).await?;
 
     Ok(())
 }

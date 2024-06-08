@@ -57,7 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             OauthCommand::Revoke { client_id } => cli::oauth::revoke(client_id)?,
         },
         SubCommand::Post(postcommand) => match postcommand.command {
-            PostCommand::Create { content } => service::post::create(content).await?,
+            PostCommand::Create { content } => service::post::publish(content).await?,
             PostCommand::Delete { id } => {}
         },
         SubCommand::Follow(followcommand) => match followcommand.command {

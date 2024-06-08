@@ -143,7 +143,7 @@ pub async fn accept_follow(activity: Activity) -> Result<(), Box<dyn std::error:
     )
     .inspect_err(|e| error!("Failed to add a follower: {e}"))?;
 
-    let mut inboxes = super::post::get_inboxes().lock()?;
+    let mut inboxes = super::deliver::get_inboxes().lock()?;
     inboxes.insert(actor.shared_inbox.unwrap_or(actor.inbox).to_string());
 
     Ok(())
