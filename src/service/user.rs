@@ -1,4 +1,5 @@
 use reqwest::{header::ACCEPT, Client};
+use rsa::{pkcs8::DecodePublicKey, RsaPublicKey};
 use serde::Deserialize;
 use serde_json::json;
 use url::Url;
@@ -53,6 +54,26 @@ pub async fn get_actor(url: Url) -> Result<Actor, Box<dyn std::error::Error>> {
         .await?;
 
     Ok(actor)
+}
+
+pub async fn get_pubkey(url: Url) -> Result<RsaPublicKey, Box<dyn std::error::Error>> {
+    let client = Client::new();
+    let json: serde_json::Value = client
+        .get(url)
+        .header(ACCEPT, "application/activity+json")
+        .send()
+        .await?
+        .json()
+        .await?;
+    let pem = json
+        .get("publicKey")
+        .ok_or("pubkey not found")?
+        .get("publicKeyPem")
+        .ok_or("pubkey not found")?
+        .as_str()
+        .ok_or("pubkey should be in pem format")?;
+
+    RsaPublicKey::from_public_key_pem(pem).map_err(|e| e.into())
 }
 
 pub async fn follow(actor: Actor) -> Result<(), Box<dyn std::error::Error>> {
