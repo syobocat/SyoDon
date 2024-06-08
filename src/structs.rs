@@ -15,7 +15,8 @@ pub enum ActivityType {
 #[derive(Serialize, Deserialize)]
 pub struct Activity {
     pub id: Url,
-    pub r#type: ActivityType,
+    #[serde(alias = "type")]
+    pub activity_type: ActivityType,
     pub actor: Url,
     pub object: serde_json::Value,
 }
@@ -27,6 +28,7 @@ pub struct Actor {
     pub following: Url,
     pub id: Url,
     pub inbox: Url,
+    pub shared_inbox: Option<Url>,
     pub outbox: Url,
     pub name: String,
     pub summary: String,

@@ -1,5 +1,7 @@
+use log::{error, info};
 use reqwest::{header::ACCEPT, Client};
 use rsa::{pkcs8::DecodePublicKey, RsaPublicKey};
+use rusqlite::Connection;
 use serde::Deserialize;
 use serde_json::json;
 use url::Url;
@@ -108,6 +110,7 @@ pub async fn follow_by_acct(acct: String) -> Result<(), Box<dyn std::error::Erro
 
 pub async fn accept_follow(activity: Activity) -> Result<(), Box<dyn std::error::Error>> {
     let config = crate::CONFIG.get().unwrap();
+    let db = &config.server.db;
     let url = &config.server.url;
 
     let actor = get_actor(activity.actor.clone()).await?;
@@ -123,11 +126,25 @@ pub async fn accept_follow(activity: Activity) -> Result<(), Box<dyn std::error:
     let client = Client::new();
     let header = create_header(Method::Post, &json, &actor.inbox);
     client
-        .post(actor.inbox)
+        .post(actor.inbox.clone())
         .headers(header)
         .json(&json)
         .send()
         .await?;
+
+    let conn = Connection::open(db).inspect_err(|e| error!("Failed to open database: {e}"))?;
+    conn.execute(
+        "INSERT INTO followers (id inbox shared_inbox) VALUES (?1, ?2, ?3)",
+        (
+            actor.id.to_string(),
+            actor.inbox.to_string(),
+            actor.shared_inbox.clone().map(|url| url.to_string()),
+        ),
+    )
+    .inspect_err(|e| error!("Failed to add a follower: {e}"))?;
+
+    let mut inboxes = super::post::get_inboxes().lock()?;
+    inboxes.insert(actor.shared_inbox.unwrap_or(actor.inbox).to_string());
 
     Ok(())
 }

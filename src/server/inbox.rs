@@ -21,7 +21,7 @@ async fn inbox(
         return HttpResponse::BadRequest().finish();
     }
 
-    match activity.r#type {
+    match activity.activity_type {
         ActivityType::Follow => crate::service::user::accept_follow(activity).await.unwrap(), // TODO: Denyable request / remove unwrap
     }
 

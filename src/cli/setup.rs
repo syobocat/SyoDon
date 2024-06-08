@@ -38,6 +38,21 @@ pub fn prepare_database() -> Result<(), Box<dyn std::error::Error>> {
         (),
     )?;
     conn.execute(
+        "CREATE TABLE IF NOT EXISTS followings (
+            id TEXT PRIMARY KEY,
+            outbox TEXT
+        )",
+        (),
+    )?;
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS followers (
+            id TEXT PRIMARY KEY,
+            inbox TEXT NOT NULL,
+            shared_inbox TEXT
+        )",
+        (),
+    )?;
+    conn.execute(
         "CREATE TABLE IF NOT EXISTS apps (
             client_id TEXT PRIMARY KEY,
             client_secret TEXT NOT NULL,
